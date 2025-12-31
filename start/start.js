@@ -41,8 +41,8 @@ const textLines = [
   { text: "万事胜意<br>Mọi việc như ý", delay: 1300 },
   { text: "财源滚滚<br>Tài lộc dồi dào", delay: 1300 },
   { text: "好运连连<br>May mắn nối tiếp may mắn", delay: 1200 },
-  { text: "2025你若不离<br>2025 nếu bạn không rời xa", delay: 1200 },
-  { text: "2026我们继续<br>2026 chúng ta tiếp tục cùng nhau", delay: 1200 },
+  { text: "2025你若不离<br>2025 nếu bạn không rời xa", delay: 1300 },
+  { text: "2026我们继续<br>2026 chúng ta tiếp tục cùng nhau", delay: 1300 },
   { text: "新年快乐，平安喜乐<br>Chúc Mừng Năm Mới - Vui Vẻ , Bình An !!", delay: 9000 }
 ];
 
@@ -507,5 +507,6 @@ function render(speed) {
 
 soundManager.preload();
 handleResize();
+
 
 
