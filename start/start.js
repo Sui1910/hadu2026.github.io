@@ -1,5 +1,5 @@
 // ============ COUNTDOWN LOGIC ============
-const targetDate = new Date('2026-01-01T00:00:00').getTime();
+const targetDate = new Date('2025-01-01T00:00:00').getTime();
 const countdownScreen = document.getElementById('countdown-screen');
 const fireworkScreen = document.getElementById('firework-screen');
 const startButton = document.getElementById('start-button');
@@ -508,3 +508,4 @@ function render(speed) {
 
 soundManager.preload();
 handleResize();
+
