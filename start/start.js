@@ -1,21 +1,16 @@
-// ============ COUNTDOWN LOGIC ============
-const targetDate = new Date('2026-01-01T00:00:00').getTime();
+// ============ COUNTUP LOGIC ============
+
+const startDate = new Date('2026-01-01T00:00:00').getTime();
 const countdownScreen = document.getElementById('countdown-screen');
 const fireworkScreen = document.getElementById('firework-screen');
 const startButton = document.getElementById('start-button');
 
 function updateCountdown() {
   const now = new Date().getTime();
-  const distance = targetDate - now;
+  let distance = now - startDate;
 
-  if (distance < 0) {
-    document.getElementById('days').textContent = '00';
-    document.getElementById('hours').textContent = '00';
-    document.getElementById('minutes').textContent = '00';
-    document.getElementById('seconds').textContent = '00';
-    startButton.classList.add('show');
-    return;
-  }
+
+  if (distance < 0) distance = 0;
 
   const days = Math.floor(distance / (1000 * 60 * 60 * 24));
   const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -26,6 +21,9 @@ function updateCountdown() {
   document.getElementById('hours').textContent = String(hours).padStart(2, '0');
   document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
   document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+
+
+  startButton.classList.add('show');
 }
 
 updateCountdown();
@@ -508,6 +506,7 @@ function render(speed) {
 
 soundManager.preload();
 handleResize();
+
 
 
 
