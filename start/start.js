@@ -29,9 +29,10 @@ function updateCountdown() {
 updateCountdown();
 setInterval(updateCountdown, 1000);
 
+
 // ============ TEXT LINES ============
 const textLines = [
-  { text: "ylx - khoavan", delay: 1500 },
+  { text: "ylx-khoavan", delay: 2500 },
   { text: "下一站2026<br>TRẠM TIẾP THEO：2026", delay: 1200 },
   { text: "祝我们马到成功!<br>Chúc Bạn và tôi mã đảo thành công!", delay: 1300 },
   { text: "一顺百順<br>Mọi việc suôn sẻ, thuận buồm xuôi gió", delay: 1300 },
@@ -42,7 +43,7 @@ const textLines = [
   { text: "好运连连<br>May mắn nối tiếp may mắn", delay: 1200 },
   { text: "2025你若不离<br>2025 nếu bạn không rời xa", delay: 1200 },
   { text: "2026我们继续<br>2026 chúng ta tiếp tục cùng nhau", delay: 1200 },
-  { text: "新年快乐，平安喜乐<br>Chúc Mừng Năm Mới - Vui Vẻ , Bình An !!", delay: 100000 }
+  { text: "新年快乐，平安喜乐<br>Chúc Mừng Năm Mới - Vui Vẻ , Bình An !!", delay: 9000 }
 ];
 
 const customAudioURL = "../font/ny2.mp3";
@@ -64,7 +65,7 @@ startButton.addEventListener("click", () => {
 });
 
 // ============ CUSTOM AUDIO ============
-function playCustomAudio(delay = 1500) {
+function playCustomAudio(delay = 2500) {
   setTimeout(() => {
     const audio1 = new Audio(customAudioURL);
     audio1.volume = 0.5;
@@ -506,8 +507,5 @@ function render(speed) {
 
 soundManager.preload();
 handleResize();
-
-
-
 
 
