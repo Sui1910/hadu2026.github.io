@@ -1,0 +1,186 @@
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+      
+    }
+
+    body {
+    background-color: #000;
+    background-image :url(ny1.jpg);
+    color : #fff;
+    font-family: 'Segoe UI', sans-serif;
+
+    background-size :cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+#countdown-screen h1 {
+    font-size: 3em; /* cỡ chữ lớn */
+    font-weight: 700;
+    text-align: center;
+    color: #fff; /* hoặc #ffdd57 cho vàng nhạt */
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.5); /* shadow nhẹ */
+    margin-bottom: 20px;}
+    /* Countdown Screen */
+    #countdown-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity 0.5s, visibility 0.5s;
+    }
+
+    #countdown-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .countdown-container {
+      text-align: center;
+      color: white;
+      padding: 20px;
+    }
+
+    .countdown-title {
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .countdown-timer {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+
+    .time-box {
+      background: rgba(204, 13, 13, 0.4);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 20px;
+      min-width: 100px;
+      border: 2px solid rgba(228, 10, 10, 0.2);
+    }
+
+    .time-value {
+      font-size: 3em;
+      font-weight: bold;
+      display: block;
+    }
+
+    .time-label {
+      font-size: 0.9em;
+      text-transform: uppercase;
+      opacity: 0.8;
+      margin-top: 5px;
+    }
+
+    #start-button {
+      display: none;
+      background: linear-gradient(45deg, rgba(204, 13, 13, 0.4), #ee5a6f);
+      color: white;
+      border: none;
+      padding: 20px 50px;
+      font-size: 1.5em;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    #start-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(255, 107, 107, 0.6);
+    }
+
+    #start-button:active {
+      transform: translateY(0);
+    }
+
+    #start-button.show {
+      display: inline-block;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    /* Firework Screen - Hidden initially */
+    #firework-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s, visibility 0.5s;
+    }
+
+    #firework-screen.active {
+      opacity: 1;
+      visibility: visible;
+      z-index: 999;
+    }
+
+    /* Firework styles */
+    .stage-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .canvas-container {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+    }
+
+    .canvas-container canvas {
+      position: absolute;
+      mix-blend-mode: lighten;
+    }
+
+    @media (max-width: 768px) {
+      .countdown-title {
+        font-size: 1.8em;
+      }
+
+      .time-box {
+        min-width: 70px;
+        padding: 15px;
+      }
+
+      .time-value {
+        font-size: 2em;
+      }
+
+      #start-button {
+        padding: 15px 35px;
+        font-size: 1.2em;
+      }
+    }

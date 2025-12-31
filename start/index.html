@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Countdown to Celebration</title>
+  <link href="https://fonts.googleapis.com/css?family=Russo+One" rel="stylesheet">
+  <link rel="stylesheet" href="./start.css">
+</head>
+<body>
+  	<div id="content"></div>
+
+  <!-- Countdown Screen -->
+  <div id="countdown-screen">
+    <h1>Đếm Ngược Đến 2026</h1>
+    <div class="countdown-container">
+      <div class="countdown-timer">
+        <div class="time-box">
+          <span class="time-value" id="days">00</span>
+          <span class="time-label">Ngày</span>
+        </div>
+        <div class="time-box">
+          <span class="time-value" id="hours">00</span>
+          <span class="time-label">Giờ</span>
+        </div>
+        <div class="time-box">
+          <span class="time-value" id="minutes">00</span>
+          <span class="time-label">Phút</span>
+        </div>
+        <div class="time-box">
+          <span class="time-value" id="seconds">00</span>
+          <span class="time-label">Giây</span>
+        </div>
+      </div>
+      <button id="start-button">Bắt Đầu</button>
+    </div>
+  </div>
+
+  <script src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/329180/fscreen%401.0.1.js'></script>
+  <script src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/329180/Stage%400.1.4.js'></script>
+  <script src='https://s3-us-west-2.amazonaws.com/s.cdpn.io/329180/MyMath.js'></script>
+  <script src="./start.js"></script>
+
+<iframe
+  id="firework-frame"
+  allow="autoplay"
+  style="
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: none;
+    z-index: 9999;
+  ">
+</iframe>
+
+</body>
+</html>
