@@ -152,6 +152,359 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// ============ FIREWORK LOGIC (giữ nguyên) ============
-/* ...giữ nguyên toàn bộ code fireworks của cậu như cũ... */
 
+// ============ FIREWORK LOGIC ============
+const IS_MOBILE = window.innerWidth <= 640;
+const IS_DESKTOP = window.innerWidth > 800;
+const MAX_WIDTH = 7680;
+const MAX_HEIGHT = 4320;
+const GRAVITY = 0.9;
+let simSpeed = 1;
+let stageW, stageH;
+let quality = 2;
+let isPaused = true;
+let soundEnabled = false;
+let autoLaunchTime = 0;
+
+const COLOR = {
+  Red: '#ff0043',
+  Green: '#14fc56',
+  Blue: '#1e7fff',
+  Purple: '#e60aff',
+  Gold: '#ffbf36',
+  White: '#ffffff'
+};
+
+const INVISIBLE = '_INVISIBLE_';
+const PI_2 = Math.PI * 2;
+const PI_HALF = Math.PI * 0.5;
+
+const trailsStage = new Stage('trails-canvas');
+const mainStage = new Stage('main-canvas');
+
+const COLOR_NAMES = Object.keys(COLOR);
+const COLOR_CODES = COLOR_NAMES.map(colorName => COLOR[colorName]);
+const COLOR_CODES_W_INVIS = [...COLOR_CODES, INVISIBLE];
+
+const COLOR_TUPLES = {};
+COLOR_CODES.forEach(hex => {
+  COLOR_TUPLES[hex] = {
+    r: parseInt(hex.substr(1, 2), 16),
+    g: parseInt(hex.substr(3, 2), 16),
+    b: parseInt(hex.substr(5, 2), 16),
+  };
+});
+
+function randomColor() {
+  return COLOR_CODES[Math.random() * COLOR_CODES.length | 0];
+}
+
+function createParticleCollection() {
+  const collection = {};
+  COLOR_CODES_W_INVIS.forEach(color => {
+    collection[color] = [];
+  });
+  return collection;
+}
+
+const Star = {
+  drawWidth: 3,
+  airDrag: 0.98,
+  airDragHeavy: 0.992,
+  active: createParticleCollection(),
+  _pool: [],
+  
+  add(x, y, color, angle, speed, life, speedOffX, speedOffY) {
+    const instance = this._pool.pop() || {};
+    instance.visible = true;
+    instance.x = x;
+    instance.y = y;
+    instance.prevX = x;
+    instance.prevY = y;
+    instance.color = color;
+    instance.speedX = Math.sin(angle) * speed + (speedOffX || 0);
+    instance.speedY = Math.cos(angle) * speed + (speedOffY || 0);
+    instance.life = life;
+    instance.fullLife = life;
+    this.active[color].push(instance);
+    return instance;
+  },
+
+  returnInstance(instance) {
+    instance.onDeath && instance.onDeath(instance);
+    instance.onDeath = null;
+    this._pool.push(instance);
+  }
+};
+
+const Spark = {
+  drawWidth: 1,
+  airDrag: 0.9,
+  active: createParticleCollection(),
+  _pool: [],
+  
+  add(x, y, color, angle, speed, life) {
+    const instance = this._pool.pop() || {};
+    instance.x = x;
+    instance.y = y;
+    instance.prevX = x;
+    instance.prevY = y;
+    instance.color = color;
+    instance.speedX = Math.sin(angle) * speed;
+    instance.speedY = Math.cos(angle) * speed;
+    instance.life = life;
+    this.active[color].push(instance);
+    return instance;
+  },
+
+  returnInstance(instance) {
+    this._pool.push(instance);
+  }
+};
+
+const BurstFlash = {
+  active: [],
+  _pool: [],
+  add(x, y, radius) {
+    const instance = this._pool.pop() || {};
+    instance.x = x;
+    instance.y = y;
+    instance.radius = radius;
+    this.active.push(instance);
+    return instance;
+  },
+  returnInstance(instance) {
+    this._pool.push(instance);
+  }
+};
+
+const soundManager = {
+  ctx: new (window.AudioContext || window.webkitAudioContext)(),
+  baseURL: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/329180/',
+  sources: {
+    lift: {
+      volume: 1,
+      playbackRateMin: 0.85,
+      playbackRateMax: 0.95,
+      fileNames: ['lift1.mp3', 'lift2.mp3', 'lift3.mp3']
+    },
+    burst: {
+      volume: 1,
+      playbackRateMin: 0.8,
+      playbackRateMax: 0.9,
+      fileNames: ['burst1.mp3', 'burst2.mp3']
+    }
+  },
+
+  preload() {
+    const allPromises = [];
+    Object.keys(this.sources).forEach(type => {
+      const source = this.sources[type];
+      const promises = source.fileNames.map(fileName => {
+        return fetch(this.baseURL + fileName)
+          .then(r => r.arrayBuffer())
+          .then(data => new Promise(resolve => {
+            this.ctx.decodeAudioData(data, resolve);
+          }));
+      });
+      Promise.all(promises).then(buffers => {
+        source.buffers = buffers;
+      });
+      allPromises.push(...promises);
+    });
+    return Promise.all(allPromises);
+  },
+
+  resumeAll() {
+    this.ctx.resume();
+  },
+
+  playSound(type, scale = 1) {
+    if (!soundEnabled) return;
+    const source = this.sources[type];
+    if (!source || !source.buffers) return;
+
+    const gainNode = this.ctx.createGain();
+    gainNode.gain.value = source.volume * scale;
+    const buffer = source.buffers[Math.floor(Math.random() * source.buffers.length)];
+    const bufferSource = this.ctx.createBufferSource();
+    bufferSource.buffer = buffer;
+    bufferSource.connect(gainNode);
+    gainNode.connect(this.ctx.destination);
+    bufferSource.start(0);
+  }
+};
+
+class Shell {
+  constructor(size = 3) {
+    this.shellSize = size;
+    this.spreadSize = 300 + size * 100;
+    this.starLife = 900 + size * 200;
+    this.starCount = Math.max(30, size * 15);
+    this.color = randomColor();
+  }
+
+  launch(x, y) {
+    const width = stageW;
+    const height = stageH;
+    const launchX = x * width;
+    const launchY = height;
+    const burstY = y * height * 0.5;
+    const launchDistance = launchY - burstY;
+    const launchVelocity = Math.pow(launchDistance * 0.04, 0.64);
+
+    const comet = Star.add(
+      launchX, launchY, COLOR.White,
+      Math.PI, launchVelocity, launchVelocity * 400
+    );
+    comet.heavy = true;
+    comet.onDeath = () => this.burst(comet.x, comet.y);
+    soundManager.playSound('lift');
+  }
+
+  burst(x, y) {
+    const speed = this.spreadSize / 96;
+    const count = this.starCount;
+    const R = 0.5 * Math.sqrt(count / Math.PI);
+    const C = 2 * R * Math.PI;
+    const C_HALF = C / 2;
+
+    for (let i = 0; i <= C_HALF; i++) {
+      const ringAngle = i / C_HALF * PI_HALF;
+      const ringSize = Math.cos(ringAngle);
+      const partsPerRing = C * ringSize;
+      const angleInc = PI_2 / partsPerRing;
+
+      for (let j = 0; j < partsPerRing; j++) {
+        const angle = angleInc * j + Math.random() * angleInc;
+        Star.add(x, y, this.color, angle, speed * ringSize, this.starLife);
+      }
+    }
+
+    BurstFlash.add(x, y, this.spreadSize / 4);
+    soundManager.playSound('burst');
+  }
+}
+
+function handleResize() {
+  const w = Math.min(window.innerWidth, MAX_WIDTH);
+  const h = Math.min(window.innerHeight, MAX_HEIGHT);
+  trailsStage.resize(w, h);
+  mainStage.resize(w, h);
+  stageW = w;
+  stageH = h;
+}
+
+let currentFrame = 0;
+
+function update(frameTime, lag) {
+  if (isPaused) return;
+
+  currentFrame++;
+  const timeStep = frameTime * simSpeed;
+  const speed = simSpeed * lag;
+
+  autoLaunchTime -= timeStep;
+  if (autoLaunchTime <= 0) {
+    const shell = new Shell(Math.random() * 3 + 2);
+    shell.launch(Math.random() * 0.6 + 0.2, Math.random() * 0.3 + 0.5);
+    autoLaunchTime = 900 + Math.random() * 600;
+  }
+
+  const gAcc = timeStep / 1000 * GRAVITY;
+  const starDrag = 1 - (1 - Star.airDrag) * speed;
+
+  COLOR_CODES_W_INVIS.forEach(color => {
+    const stars = Star.active[color];
+    for (let i = stars.length - 1; i >= 0; i--) {
+      const star = stars[i];
+      star.life -= timeStep;
+      if (star.life <= 0) {
+        stars.splice(i, 1);
+        Star.returnInstance(star);
+      } else {
+        star.prevX = star.x;
+        star.prevY = star.y;
+        star.x += star.speedX * speed;
+        star.y += star.speedY * speed;
+        star.speedX *= starDrag;
+        star.speedY *= starDrag;
+        star.speedY += gAcc;
+      }
+    }
+
+    const sparks = Spark.active[color];
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const spark = sparks[i];
+      spark.life -= timeStep;
+      if (spark.life <= 0) {
+        sparks.splice(i, 1);
+        Spark.returnInstance(spark);
+      } else {
+        spark.prevX = spark.x;
+        spark.prevY = spark.y;
+        spark.x += spark.speedX * speed;
+        spark.y += spark.speedY * speed;
+        spark.speedX *= 0.9;
+        spark.speedY *= 0.9;
+        spark.speedY += gAcc;
+      }
+    }
+  });
+
+  render(speed);
+}
+
+function render(speed) {
+  const { dpr } = mainStage;
+  const trailsCtx = trailsStage.ctx;
+  const mainCtx = mainStage.ctx;
+
+  trailsCtx.scale(dpr, dpr);
+  mainCtx.scale(dpr, dpr);
+
+  trailsCtx.fillStyle = `rgba(0, 0, 0, ${0.175 * speed})`;
+  trailsCtx.fillRect(0, 0, stageW, stageH);
+  mainCtx.clearRect(0, 0, stageW, stageH);
+
+  while (BurstFlash.active.length) {
+    const bf = BurstFlash.active.pop();
+    const grad = trailsCtx.createRadialGradient(bf.x, bf.y, 0, bf.x, bf.y, bf.radius);
+    grad.addColorStop(0.024, 'rgba(255, 255, 255, 1)');
+    grad.addColorStop(0.125, 'rgba(255, 160, 20, 0.2)');
+    grad.addColorStop(0.32, 'rgba(255, 140, 20, 0.11)');
+    grad.addColorStop(1, 'rgba(255, 120, 20, 0)');
+    trailsCtx.fillStyle = grad;
+    trailsCtx.fillRect(bf.x - bf.radius, bf.y - bf.radius, bf.radius * 2, bf.radius * 2);
+    BurstFlash.returnInstance(bf);
+  }
+
+  trailsCtx.globalCompositeOperation = 'lighten';
+  trailsCtx.lineWidth = Star.drawWidth;
+  trailsCtx.lineCap = 'round';
+  mainCtx.strokeStyle = '#fff';
+  mainCtx.lineWidth = 1;
+
+  COLOR_CODES.forEach(color => {
+    const stars = Star.active[color];
+    trailsCtx.strokeStyle = color;
+    trailsCtx.beginPath();
+    mainCtx.beginPath();
+    stars.forEach(star => {
+      if (star.visible) {
+        trailsCtx.moveTo(star.x, star.y);
+        trailsCtx.lineTo(star.prevX, star.prevY);
+        mainCtx.moveTo(star.x, star.y);
+        mainCtx.lineTo(star.x - star.speedX * 1.6, star.y - star.speedY * 1.6);
+      }
+    });
+    trailsCtx.stroke();
+    mainCtx.stroke();
+  });
+
+  trailsCtx.setTransform(1, 0, 0, 1, 0, 0);
+  mainCtx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+soundManager.preload();
+handleResize();
