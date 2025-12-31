@@ -23,11 +23,11 @@
 }
 
 #countdown-screen h1 {
-    font-size: 3em; /* cỡ chữ lớn */
+    font-size: 1.6em; /* cỡ chữ lớn */
     font-weight: 700;
     text-align: center;
     color: #fff; /* hoặc #ffdd57 cho vàng nhạt */
-    text-shadow: 2px 2px 6px rgba(0,0,0,0.5); /* shadow nhẹ */
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.8); /* shadow nhẹ */
     margin-bottom: 20px;}
     /* Countdown Screen */
     #countdown-screen {
