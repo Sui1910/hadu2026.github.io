@@ -1,5 +1,5 @@
 // ============ COUNTDOWN LOGIC ============
-const targetDate = new Date('2025-01-02T00:00:00').getTime();
+const targetDate = new Date('2026-01-01T00:00:00').getTime();
 const countdownScreen = document.getElementById('countdown-screen');
 const fireworkScreen = document.getElementById('firework-screen');
 const startButton = document.getElementById('start-button');
@@ -44,7 +44,7 @@ const textLines = [
   { text: "好运连连<br>May mắn nối tiếp may mắn", delay: 1200 },
   { text: "2025你若不离<br>2025 nếu bạn không rời xa", delay: 1200 },
   { text: "2026我们继续<br>2026 chúng ta tiếp tục cùng nhau", delay: 1200 },
-  { text: "新年快乐，平安喜乐<br>Chúc Mừng Năm Mới - Vui Vẻ , Bình An !!", delay: 10000 }
+  { text: "新年快乐，平安喜乐<br>Chúc Mừng Năm Mới - Vui Vẻ , Bình An !!", delay: 100000 }
 ];
 
 const customAudioURL = "../font/ny2.mp3";
@@ -508,5 +508,6 @@ function render(speed) {
 
 soundManager.preload();
 handleResize();
+
 
 
