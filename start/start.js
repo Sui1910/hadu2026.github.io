@@ -31,7 +31,7 @@ setInterval(updateCountdown, 1000);
 
 // ============ TEXT LINES ============
 const textLines = [
-  { text: "ylx", delay: 1500 },
+  { text: "ylx - khoavan", delay: 1500 },
   { text: "下一站2026<br>TRẠM TIẾP THEO：2026", delay: 1200 },
   { text: "祝我们马到成功!<br>Chúc Bạn và tôi mã đảo thành công!", delay: 1300 },
   { text: "一顺百順<br>Mọi việc suôn sẻ, thuận buồm xuôi gió", delay: 1300 },
@@ -506,6 +506,7 @@ function render(speed) {
 
 soundManager.preload();
 handleResize();
+
 
 
 
